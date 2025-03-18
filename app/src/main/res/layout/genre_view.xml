@@ -1,0 +1,18 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="10dp"
+    android:paddingVertical="5dp"
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:background="@drawable/bg_veiw_genre">
+
+    <TextView
+        android:id="@+id/tvGenreName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Жанр"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+</LinearLayout>

@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.FEFU2025AndroidBaseRepo" parent="android:Theme.Material.Light.NoActionBar" />
+<<<<<<< HEAD
+    <style name="Theme.FEFU2025AndroidBaseRepo" parent="Theme.AppCompat.Light.NoActionBar">
+=======
+    <style name="Theme.FEFU2025AndroidBaseRepo" parent="android:Theme.Material.Light.NoActionBar">
+
+    </style>
+
+    <style name="Theme.FEFU2025AppCompat" parent="Theme.AppCompat.Light.NoActionBar">
+>>>>>>> 97e525c238cf028a242dcd76342193b0b10d078e
+    </style>
+
 </resources>

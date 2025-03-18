@@ -1,0 +1,50 @@
+<<<<<<< HEAD
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rootLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <co.feip.fefu2025.FlexBoxLayout
+            android:id="@+id/flexLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="14dp" />
+
+    </ScrollView>
+
+    <Button
+        android:id="@+id/btnClick"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="14dp"
+        android:textSize="18sp"
+        android:text="+ жанр"
+        android:layout_margin="14dp" />
+
+</LinearLayout>
+=======
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0 Clicks"
+        android:textSize="24sp"
+        android:layout_centerInParent="true"
+        android:padding="16dp"
+        android:background="?attr/selectableItemBackground" /> <!-- Добавляем эффект нажатия -->
+
+</RelativeLayout>
+>>>>>>> 97e525c238cf028a242dcd76342193b0b10d078e
