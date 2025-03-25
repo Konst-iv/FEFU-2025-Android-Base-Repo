@@ -168,15 +168,15 @@ private fun InfoItem(icon: ImageVector, text: String) {
     }
 }
 
-// Функция для автоматического назначения цветов жанрам
+// Функция
 fun generateGenreColors(genres: List<String>): List<Pair<String, Color>> {
     val colors = listOf(
-        Color(0xFFF44336), // Красный
-        Color(0xFF2196F3), // Синий
-        Color(0xFF4CAF50), // Зеленый
-        Color(0xFF9C27B0), // Фиолетовый
-        Color(0xFFFF9800), // Оранжевый
-        Color(0xFF607D8B)  // Серый
+        Color(0xFFF44336),
+        Color(0xFF2196F3),
+        Color(0xFF4CAF50),
+        Color(0xFF9C27B0),
+        Color(0xFFFF9800),
+        Color(0xFF607D8B)
     )
 
     return genres.mapIndexed { index, genre ->
