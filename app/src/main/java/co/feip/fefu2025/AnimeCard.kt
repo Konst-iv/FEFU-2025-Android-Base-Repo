@@ -42,10 +42,10 @@ fun GenreChip(genre: String, color: Color) {
 
 @Composable
 fun AnimeCard(
-    image: Painter,          // Изображение (можно заменить на URL с Coil)
-    title: String,           // Название аниме
-    genres: List<Pair<String, Color>>, // Изменено на список пар (жанр, цвет)
-    rating: String,          // Рейтинг
+    image: Painter,
+    title: String,
+    genres: List<Pair<String, Color>>,
+    rating: String,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -56,25 +56,24 @@ fun AnimeCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column {
-            // Обертка для изображения
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(270.dp)
-                    .padding(4.dp), // Отступы вокруг изображения
-                contentAlignment = Alignment.Center // Центрирование содержимого
+                    .padding(4.dp),
+                contentAlignment = Alignment.Center
             ) {
                 Image(
                     painter = image,
                     contentDescription = title,
-                    contentScale = ContentScale.Crop, // Используйте Crop для заполнения
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .fillMaxSize() // Заполнение доступного пространства
-                        .clip(RoundedCornerShape(20.dp)) // Закругленные края
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(20.dp))
                 )
             }
 
-            // Название и детали
+
             Column(
                 modifier = Modifier
                     .padding(8.dp)
@@ -89,7 +88,7 @@ fun AnimeCard(
                     maxLines = 1
                 )
 
-                // Отображение жанров
+               
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -123,7 +122,7 @@ fun AnimeCard(
     }
 }
 
-// Превью для Android Studio
+
 @Preview(showBackground = false)
 @Composable
 fun AnimeCardPreview() {
@@ -134,8 +133,8 @@ fun AnimeCardPreview() {
             "Боевик" to Color.Blue,
             "Приключения" to Color.Green,
             "Фантастика" to Color.Red,
-            // Добавьте больше жанров, если нужно
-        ), // Пример списка жанров с цветами
+
+        ),
         rating = "9.7"
     )
 }

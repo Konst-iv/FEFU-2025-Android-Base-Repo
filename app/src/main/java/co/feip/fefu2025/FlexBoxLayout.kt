@@ -12,7 +12,6 @@ class FlexBoxLayout @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : ViewGroup(context, attrs, defStyleAttr) {
 
-    // Изменяем инициализацию отступов
      var itemHorizontalGap = dpToPx(16, context)
      var itemVerticalGap = dpToPx(16, context)
 
@@ -66,7 +65,6 @@ class FlexBoxLayout @JvmOverloads constructor(
         }
     }
 
-    // Функция для конвертации dp в px
     private fun dpToPx(dp: Int, context: Context): Int {
         return (dp * context.resources.displayMetrics.density).toInt()
     }

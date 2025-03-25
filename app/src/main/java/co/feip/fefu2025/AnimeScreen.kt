@@ -48,7 +48,7 @@ fun AnimeDetailScreen(
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        // Изображение
+
         Image(
             painter = image,
             contentDescription = null,
@@ -61,7 +61,6 @@ fun AnimeDetailScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Название
         Text(
             text = title,
             style = MaterialTheme.typography.headlineLarge.copy(
@@ -71,12 +70,10 @@ fun AnimeDetailScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Жанры с разными цветами
         GenreTags(genres = genres)
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Информация
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
