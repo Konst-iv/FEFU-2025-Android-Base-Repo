@@ -65,7 +65,7 @@ class FlexBoxLayout @JvmOverloads constructor(
         }
     }
 
-    private fun dpToPx(dp: Int, context: Context): Int {
+    fun dpToPx(dp: Int, context: Context): Int {
         return (dp * context.resources.displayMetrics.density).toInt()
     }
 }

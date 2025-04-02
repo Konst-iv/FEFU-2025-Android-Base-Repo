@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,25 +21,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.material3.Icon
-import androidx.compose.ui.res.painterResource
-@Composable
-fun GenreChip(genre: String, color: Color) {
-    Box(
-        modifier = Modifier
-            .padding(horizontal = 4.dp, vertical = 6.dp) // Уменьшенные отступы
-            .background(color, RoundedCornerShape(8.dp)) // Фон с закругленными краями
-            .padding(horizontal = 4.5.dp, vertical = 7.dp), // Уменьшенные внутренние отступы
-        contentAlignment = Alignment.Center // Центрирование текста
-    ) {
-        Text(
-            text = genre,
-            fontSize = 8.sp, // Уменьшенный размер шрифта
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onPrimary // Цвет текста
-        )
-    }
-}
 
 @Composable
 fun AnimeCard(
@@ -53,13 +35,13 @@ fun AnimeCard(
             .width(200.dp)
             .height(370.dp),
         shape = RoundedCornerShape(20.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(270.dp)
+                    .height(255.dp)
                     .padding(4.dp),
                 contentAlignment = Alignment.Center
             ) {
@@ -73,29 +55,24 @@ fun AnimeCard(
                 )
             }
 
-
             Column(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.padding(8.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
                     text = title,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.align(Alignment.CenterHorizontally), // Центрирование названия
-                    maxLines = 1
+                    maxLines = 1,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
 
-               
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp) // Расстояние между жанрами
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     genres.forEach { (genre, color) ->
-                        GenreChip(genre = genre, color = color)
+                        GenreChip(genre, color)
                     }
                 }
 
@@ -104,7 +81,7 @@ fun AnimeCard(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_star), // Ваш SVG файл
+                        painter = painterResource(id = R.drawable.ic_star),
                         contentDescription = "Rating",
                         tint = Color.Yellow,
                         modifier = Modifier.size(16.dp)
@@ -113,7 +90,6 @@ fun AnimeCard(
                         text = rating,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(start = 4.dp)
                     )
                 }
@@ -122,19 +98,35 @@ fun AnimeCard(
     }
 }
 
+@Composable
+private fun GenreChip(genre: String, color: Color) {
+    Box(
+        modifier = Modifier
+            .padding(horizontal = 4.dp)
+            .background(color, RoundedCornerShape(8.dp))
+            .padding(horizontal = 8.dp, vertical = 5.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = genre,
+            fontSize = 10.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black
+        )
+    }
+}
 
-@Preview(showBackground = false)
+@Preview
 @Composable
 fun AnimeCardPreview() {
     AnimeCard(
-        image = painterResource(id = R.drawable.cowboy_beebop), // Замените на ваш ресурс
+        image = painterResource(id = R.drawable.cowboy_beebop),
         title = "Cowboy Bebop",
         genres = listOf(
-            "Боевик" to Color.Blue,
-            "Приключения" to Color.Green,
-            "Фантастика" to Color.Red,
-
+            "Action" to Color.Blue,
+            "Sci-Fi" to Color.Cyan,
+            "Sci-Fiiiiiiiii" to Color.Cyan
         ),
-        rating = "9.7"
+        rating = "9.8"
     )
 }
