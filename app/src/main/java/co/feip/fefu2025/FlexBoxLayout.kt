@@ -1,3 +1,4 @@
+// AnimeScreen.kt
 package co.feip.fefu2025
 
 import android.content.Context
@@ -11,8 +12,8 @@ class FlexBoxLayout @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : ViewGroup(context, attrs, defStyleAttr) {
 
-    private var itemHorizontalGap = 16.dp
-    private var itemVerticalGap = 16.dp
+     var itemHorizontalGap = dpToPx(16, context)
+     var itemVerticalGap = dpToPx(16, context)
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val availableWidth = MeasureSpec.getSize(widthMeasureSpec)
@@ -64,6 +65,7 @@ class FlexBoxLayout @JvmOverloads constructor(
         }
     }
 
-    private val Int.dp: Int
-        get() = (this * resources.displayMetrics.density).toInt()
+    fun dpToPx(dp: Int, context: Context): Int {
+        return (dp * context.resources.displayMetrics.density).toInt()
+    }
 }
