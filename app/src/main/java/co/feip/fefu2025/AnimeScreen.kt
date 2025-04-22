@@ -121,11 +121,10 @@ fun AnimeScreenContent(
                     .padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Блок сезонов
                 StatBlock(
                     label = "Сезоны и серии",
                     value = anime.episodesInfo?.split(",")?.firstOrNull()?.trim() ?: "Неизвестно",
-                    secondaryValue = anime.episodesInfo?.split(",")?.getOrNull(1)?.trim(), // Количество серий
+                    secondaryValue = anime.episodesInfo?.split(",")?.getOrNull(1)?.trim(),
                     icon = {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_playlist),
@@ -138,7 +137,6 @@ fun AnimeScreenContent(
                     modifier = Modifier.weight(1f)
                 )
 
-                // Блок рейтинга
                 StatBlock(
                     label = "Рейтинг",
                     value = anime.rating,
@@ -183,7 +181,7 @@ fun AnimeScreenContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 8.dp, bottom = 4.dp)
-                        .clickable { onRecommendationsClick() }, // Добавлен обработчик клика
+                        .clickable { onRecommendationsClick() },
                     color = Color.Black
                 )
 
@@ -214,14 +212,14 @@ fun AnimeScreenContent(
 fun StatBlock(
     label: String,
     value: String,
-    secondaryValue: String? = null,  // Новый параметр для дополнительного значения
-    icon: @Composable () -> Unit,    // Иконка как композейбл
+    secondaryValue: String? = null,
+    icon: @Composable () -> Unit,
     backgroundColor: Color,
     modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
-            .height(80.dp)  // Увеличиваем высоту для двух строк
+            .height(80.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(backgroundColor)
             .border(
@@ -236,7 +234,7 @@ fun StatBlock(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.padding(8.dp)
         ) {
-            icon()  // Отображаем переданную иконку
+            icon()
 
             Spacer(modifier = Modifier.height(4.dp))
 

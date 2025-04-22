@@ -1,4 +1,3 @@
-// AnimeScreen.kt
 package co.feip.fefu2025
 
 import android.content.Context
