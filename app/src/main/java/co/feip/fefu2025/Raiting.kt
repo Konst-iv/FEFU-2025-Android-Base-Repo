@@ -3,92 +3,97 @@ package co.feip.fefu2025
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-
-data class AnimeRatingDistribution(
-    val totalVotes: Int,
-    val ratings: Map<Int, Int>
-) {
-    init {
-        require(ratings.keys.all { it in 1..10 }) {
-            "Ratings should contain keys from 1 to 10"
-        }
-    }
-}
+import androidx.compose.ui.unit.sp
 
 @Composable
-fun RatingDistributionChart(
-    ratingData: AnimeRatingDistribution,
-    modifier: Modifier = Modifier,
-    barColor: Color = Color(0xFF6200EE),
-    textColor: Color = MaterialTheme.colorScheme.onSurface,
-    maxBarHeight: Dp = 180.dp,
-    showValues: Boolean = true
+fun RatingBarChart(
+    ratings: Map<Int, Int>,
+    modifier: Modifier = Modifier
 ) {
-    val maxValue = ratingData.ratings.values.maxOrNull() ?: 1
+    val maxCount = ratings.values.maxOrNull() ?: 1
+    val maxBarHeight = 160.dp
+    val barWidth = 24.dp
 
-    Column(
+    val juicyRed = Color(0xFFEC0905)
+    val juicyYellow = Color(0xFFFFC107)
+    val juicyGreen = Color(0xFF05B20A)
+
+    Row(
         modifier = modifier
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(16.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.Bottom
     ) {
-        Row(
-            modifier = Modifier
-                .height(maxBarHeight + 40.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.Bottom,
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            ratingData.ratings.entries.sortedBy { it.key }.forEach { (rating, count) ->
-                val height = if (maxValue > 0) {
-                    maxBarHeight * count / maxValue
-                } else {
-                    0.dp
-                }
+        (1..10).forEach { rating ->
+            val count = ratings[rating] ?: 0
+            val barHeightRatio = count / maxCount.toFloat()
 
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.width(30.dp)
-                ) {
-                    if (showValues) {
-                        Text(
-                            text = count.toString(),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = textColor,
-                            modifier = Modifier.padding(bottom = 4.dp)
-                        )
-                    }
+            val color = when {
+                rating <= 5 -> lerp(juicyRed, juicyYellow, (rating - 1) / 4f)
+                else -> lerp(juicyYellow, juicyGreen, (rating - 6) / 4f)
+            }
 
-                    Box(
-                        modifier = Modifier
-                            .height(height)
-                            .width(20.dp)
-                            .background(
-                                color = barColor,
-                                shape = RoundedCornerShape(
-                                    topStart = 4.dp,
-                                    topEnd = 4.dp
-                                )
-                            )
-                    )
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Bottom
+            ) {
+                Text(
+                    text = count.toString(),
+                    fontSize = 10.sp,
+                    color = Color(0xFF888888),
+                    modifier = Modifier.padding(bottom = 4.dp) // Уменьшил отступ
+                )
 
-                    Text(
-                        text = rating.toString(),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = textColor,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
+                Box(
+                    modifier = Modifier
+                        .height((maxBarHeight * barHeightRatio).coerceAtLeast(6.dp))
+                        .width(barWidth)
+                        .shadow(elevation = 2.dp, shape = RoundedCornerShape(topStart = 6.dp, topEnd = 6.dp))
+                        .clip(RoundedCornerShape(topStart = 6.dp, topEnd = 6.dp))
+                        .background(color)
+                )
+
+                Text(
+                    text = rating.toString(),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(top = 4.dp) // Уменьшил отступ
+                )
             }
         }
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+fun RatingBarChartPreview() {
+    val sampleData = mapOf(
+        1 to 100,
+        2 to 50,
+        3 to 200,
+        4 to 150,
+        5 to 300,
+        6 to 250,
+        7 to 400,
+        8 to 350,
+        9 to 450,
+        10 to 500
+    )
+
+    RatingBarChart(ratings = sampleData)
+}

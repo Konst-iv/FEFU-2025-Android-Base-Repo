@@ -1,298 +1,378 @@
 package co.feip.fefu2025
 
-import android.content.Context
-import android.graphics.drawable.Drawable
-import android.graphics.drawable.GradientDrawable
-import android.view.LayoutInflater
-import android.widget.TextView
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.util.TypedValueCompat.dpToPx
+import androidx.lifecycle.viewmodel.compose.viewModel
+import co.feip.fefu2025.presentation.detail.AnimeDetailViewModel
+import co.feip.fefu2025.RatingBarChart
+import co.feip.fefu2025.AnimeCard
+import co.feip.fefu2025.data.repository.MockAnimeRepository
+import co.feip.fefu2025.domain.model.Anime
+import co.feip.fefu2025.domain.usecase.GetAnimeDetailUseCase
+import co.feip.fefu2025.ui.theme.getGenreColor
 
-import co.feip.fefu2025.RatingDistributionChart
-
-
-
-data class AnimeRecommendation(
-    val id: Int,
-    val image: Painter,
-    val title: String,
-    val genres: List<Pair<String, Color>>,
-    val rating: String
-)
 
 @Composable
-fun AnimeDetailScreen(
-    image: Painter,
-    title: String,
-    genres: List<Pair<String, Color>>,
-    description: String,
-    rating: String,
-    year: String,
-    episodes: String,
-    ratingDistribution: AnimeRatingDistribution? = null,
-    recommendations: List<AnimeRecommendation> = emptyList()
-) {
+fun AnimeScreenContent(
+    anime: Anime,
+    onAnimeClick: (Int) -> Unit,
+    onRecommendationsClick: () -> Unit
+) {    val scrollState = rememberScrollState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
+            .verticalScroll(scrollState)
+            .background(Color.White),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(
-            painter = image,
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
+        Spacer(modifier = Modifier.height(40.dp))
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(470.dp)
-                .clip(MaterialTheme.shapes.medium)
-        )
-
-        Spacer(Modifier.height(24.dp))
-
-        Text(
-            text = title,
-            style = MaterialTheme.typography.headlineLarge.copy(
-                fontWeight = FontWeight.Bold
-            )
-        )
-
-        Spacer(Modifier.height(16.dp))
-
-        GenreTags(genres = genres)
-
-        Spacer(Modifier.height(24.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            InfoItem(Icons.Default.Star, rating)
-            InfoItem(Icons.Default.DateRange, year)
-            InfoItem(Icons.Default.List, episodes)
-        }
-
-        ratingDistribution?.let {
-            Spacer(Modifier.height(24.dp))
-            Text(
-                text = "Рейтинг аниме",
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.SemiBold
+                .height(440.dp)
+                .padding(horizontal = 16.dp)
+                .shadow(
+                    elevation = 6.dp,
+                    shape = RoundedCornerShape(24.dp),
+                    clip = false
                 )
+                .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
+        ) {
+            Image(
+                painter = painterResource(id = anime.imageResId),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
             )
-            Spacer(Modifier.height(8.dp))
-            RatingDistributionChart(it)
         }
 
-        Spacer(Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            val fontSize: TextUnit = when {
+                anime.title.length <= 10 -> 30.sp
+                anime.title.length <= 15 -> 26.sp
+                anime.title.length <= 25 -> 22.sp
+                else -> 20.sp
+            }
+
+            Text(
+                text = anime.title,
+                fontSize = fontSize,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp, bottom = 4.dp)
+            )
+
+            anime.info?.let {
+                Text(
+                    text = it,
+                    fontSize = 14.sp,
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 10.dp)
+                )
+            }
+
+            AnimeScreenGenreTags(genres = anime.genres)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                StatBlock(
+                    label = "Сезоны и серии",
+                    value = anime.episodesInfo?.split(",")?.firstOrNull()?.trim() ?: "Неизвестно",
+                    secondaryValue = anime.episodesInfo?.split(",")?.getOrNull(1)?.trim(),
+                    icon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_playlist),
+                            contentDescription = "Серии",
+                            tint = Color(0xFF4CAF50),
+                            modifier = Modifier.size(24.dp)
+                        )
+                    },
+                    backgroundColor = Color(0xFFE8F5E9).copy(alpha = 0.7f),
+                    modifier = Modifier.weight(1f)
+                )
+
+                StatBlock(
+                    label = "Рейтинг",
+                    value = anime.rating,
+                    icon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_star),
+                            contentDescription = "Рейтинг",
+                            tint = Color(0xFFFFC107),
+                            modifier = Modifier.size(24.dp)
+                        )
+                    },
+                    backgroundColor = Color(0xFFFFF3E0).copy(alpha = 0.7f),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            anime.description?.let { Description(it) }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            anime.ratings?.let {
+                Text(
+                    text = "Распределение оценок",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 8.dp, bottom = 4.dp),
+                    color = Color.Black
+                )
+                RatingBarChart(ratings = it)
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            anime.recommendations?.let {
+                Text(
+                    text = "Рекомендации:",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 8.dp, bottom = 4.dp)
+                        .clickable { onRecommendationsClick() },
+                    color = Color.Black
+                )
+
+                LazyRow(
+                    contentPadding = PaddingValues(start = 4.dp, end = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    items(it) { rec ->
+                        AnimeCard(
+                            title = rec.title,
+                            rating = rec.rating,
+                            genres = rec.genres,
+                            image = painterResource(id = rec.imageResId),
+                            modifier = Modifier
+                                .width(200.dp)
+                                .clickable { onAnimeClick(rec.id) }
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+    }
+}
+
+@Composable
+fun StatBlock(
+    label: String,
+    value: String,
+    secondaryValue: String? = null,
+    icon: @Composable () -> Unit,
+    backgroundColor: Color,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .height(80.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(backgroundColor)
+            .border(
+                width = 1.dp,
+                color = Color.LightGray.copy(alpha = 0.5f),
+                shape = RoundedCornerShape(16.dp)
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(8.dp)
+        ) {
+            icon()
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = value,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+
+            secondaryValue?.let {
+                Text(
+                    text = it,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.DarkGray
+                )
+            }
+
+            Text(
+                text = label,
+                fontSize = 12.sp,
+                color = Color.Gray,
+                modifier = Modifier.padding(top = 2.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun AnimeScreenGenreTags(genres: List<String>) {
+    val rowWidth = 300.dp
+    val genreChunks = mutableListOf<List<String>>()
+    var currentRow = mutableListOf<String>()
+    var currentWidth = 0.dp
+
+    genres.forEach { genre ->
+        val genreWidth = (genre.length * 7.5).dp + 12.dp
+
+        if (currentWidth + genreWidth > rowWidth) {
+            genreChunks.add(currentRow)
+            currentRow = mutableListOf()
+            currentWidth = 0.dp
+        }
+
+        currentRow.add(genre)
+        currentWidth += genreWidth
+    }
+
+    if (currentRow.isNotEmpty()) {
+        genreChunks.add(currentRow)
+    }
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        genreChunks.forEach { rowGenres ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                rowGenres.forEach { genre ->
+                    Box(
+                        modifier = Modifier
+                            .padding(horizontal = 4.dp, vertical = 2.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(getGenreColor(genre).copy(alpha = 0.2f))
+                            .border(
+                                width = 1.dp,
+                                color = getGenreColor(genre),
+                                shape = RoundedCornerShape(6.dp)
+                            )
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = genre,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = getGenreColor(genre)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun Description(description: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color(0xFFF8F8F8))
+            .padding(16.dp)
+    ) {
         Text(
             text = "Описание",
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.SemiBold
-            )
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black,
+            modifier = Modifier.padding(bottom = 8.dp)
         )
-
         Text(
             text = description,
-            style = MaterialTheme.typography.bodyLarge.copy(
-                lineHeight = 24.sp
-            ),
-            modifier = Modifier.padding(top = 8.dp)
+            fontSize = 14.sp,
+            color = Color.DarkGray,
+            lineHeight = 20.sp
         )
+    }
+}
 
-        if (recommendations.isNotEmpty()) {
-            Spacer(Modifier.height(46.dp))
-            Text(
-                text = "Рекомендации",
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.SemiBold
-                )
-            )
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.padding(vertical = 12.dp)
-            ) {
-                items(recommendations) { item ->
-                    AnimeCard(
-                        image = item.image,
-                        title = item.title,
-                        genres = item.genres,
-                        rating = item.rating,
-                        modifier = Modifier.width(200.dp)
-                    )
-                }
-            }
+@Composable
+fun AnimeScreen(
+    animeId: Int,
+    viewModelFactory: AnimeDetailViewModel.Factory,
+    onAnimeClick: (Int) -> Unit,
+    onRecommendationsClick: () -> Unit
+) {
+    val viewModel: AnimeDetailViewModel = viewModel(factory = viewModelFactory)
+    val anime by viewModel.anime
+
+    if (anime != null) {
+        AnimeScreenContent(
+            anime = anime!!,
+            onAnimeClick = onAnimeClick,
+            onRecommendationsClick = onRecommendationsClick
+        )
+    } else {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("Загрузка...")
         }
     }
 }
 
 
-@Composable
-private fun GenreTags(genres: List<Pair<String, Color>>) {
-    val context = LocalContext.current
 
-    AndroidView(
-        factory = { context ->
-            FlexBoxLayout(context).apply {
-                itemHorizontalGap = dpToPx(8, context)
-                itemVerticalGap = dpToPx(8, context)
-            }
-        },
-        update = { flexBox ->
-            flexBox.removeAllViews()
-            genres.forEach { (genre, color) ->
-                val view = LayoutInflater.from(context).inflate(
-                    R.layout.genre_view,
-                    flexBox,
-                    false
-                ).apply {
-                    findViewById<TextView>(R.id.tvGenreName).text = genre
-                    background = createGenreBackground(color.toArgb())
-                }
-                flexBox.addView(view)
-            }
-        }
-    )
-}
-
-private fun createGenreBackground(color: Int): Drawable {
-    return GradientDrawable().apply {
-        cornerRadius = 16f
-        setColor(color)
-    }
-}
-
-private fun Color.toArgb(): Int {
-    return android.graphics.Color.argb(
-        (alpha * 255).toInt(),
-        (red * 255).toInt(),
-        (green * 255).toInt(),
-        (blue * 255).toInt()
-    )
-}
-
-private fun dpToPx(dp: Int, context: Context): Int {
-    return (dp * context.resources.displayMetrics.density).toInt()
-}
-
-@Composable
-private fun InfoItem(icon: ImageVector, text: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(horizontal = 8.dp)
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            modifier = Modifier.size(20.dp)
-        )
-        Text(
-            text = text,
-            modifier = Modifier.padding(start = 4.dp)
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun AnimeDetailScreenPreview() {
-    MaterialTheme {
-        AnimeDetailScreen(
-            image = painterResource(R.drawable.cowboy_beebop),
-            title = "Cowboy Bebop",
-            genres = listOf("Action", "Sci-Fi", "Adventure")
-                .mapIndexed { i, genre -> genre to getGenreColor(i) },
-            description = "Классика аниме про космических охотников...",
-            rating = "8.9",
-            year = "1998",
-            episodes = "26",
-            ratingDistribution = AnimeRatingDistribution(
-                totalVotes = 1000,
-                ratings = mapOf(
-                    1 to 10,
-                    2 to 20,
-                    3 to 30,
-                    4 to 40,
-                    5 to 50,
-                    6 to 60,
-                    7 to 70,
-                    8 to 80,
-                    9 to 90,
-                    10 to 100
-                )
-            ),
-            recommendations = listOf(
-                AnimeRecommendation(
-                    id = 1,
-                    image = painterResource(R.drawable.cowboy_beebop),
-                    title = "Attack on Titan",
-                    genres = listOf("Action", "Drama").mapIndexed { i, genre -> genre to getGenreColor(i) },
-                    rating = "9.5"
-                ),
-                AnimeRecommendation(
-                    id = 2,
-                    image = painterResource(R.drawable.cowboy_beebop),
-                    title = "My Hero Academia",
-                    genres = listOf("Action", "Adventure").mapIndexed { i, genre -> genre to getGenreColor(i) },
-                    rating = "8.3"
-                ),
-                AnimeRecommendation(
-                    id = 3,
-                    image = painterResource(R.drawable.cowboy_beebop),
-                    title = "Demon Slayer",
-                    genres = listOf("Action", "Fantasy").mapIndexed { i, genre -> genre to getGenreColor(i) },
-                    rating = "9.0"
-                ),
-                AnimeRecommendation(
-                    id = 4,
-                    image = painterResource(R.drawable.cowboy_beebop),
-                    title = "Death Note",
-                    genres = listOf("Mystery", "Thriller").mapIndexed { i, genre -> genre to getGenreColor(i) },
-                    rating = "9.0"
-                ),
-                AnimeRecommendation(
-                    id = 5,
-                    image = painterResource(R.drawable.cowboy_beebop),
-                    title = "Fullmetal Alchemist: Brotherhood",
-                    genres = listOf("Action", "Adventure").mapIndexed { i, genre -> genre to getGenreColor(i) },
-                    rating = "9.2"
-                )
-            )
-        )
-    }
-}
-
-private fun getGenreColor(index: Int): Color {
-    val colors = listOf(
-        Color(0xFFF44336),
-        Color(0xFF2196F3),
-        Color(0xFF4CAF50)
-    )
-    return colors[index % colors.size]
-}

@@ -1,32 +1,56 @@
 package co.feip.fefu2025
 
-import android.graphics.Color
+import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import co.feip.fefu2025.navigation.Destinations
+import co.feip.fefu2025.presentation.navigation.AppNavGraph
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : ComponentActivity() {
+    private var navController: NavHostController? = null
 
-    private val anime = listOf(
-        "Хорор" to Color.parseColor("#795548"),
-        "Комедия" to Color.parseColor("#F44336"),
-        "Исекай" to Color.parseColor("#FFc0cb"),
-        "Повседневность" to Color.parseColor("#E91E63"),
-        "Фэнтези" to Color.parseColor("#0000FF"),
-        "История" to Color.parseColor("#4CAF50"),
-        "Детектив" to Color.parseColor("#FF0000")
-    )
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        val btnClick = findViewById<Button>(R.id.btnClick)
-        val flexLayout = findViewById<FlexBoxLayout>(R.id.flexLayout)
-        btnClick.setOnClickListener {
-            val (name, color) = anime.random()
-            val genreView = Genre_veiw(this)
-            genreView.setGenreName(name)
-            genreView.setColor(color)
-            flexLayout.addView(genreView)
+
+        setContent {
+            navController = rememberNavController()
+
+            LaunchedEffect(Unit) {
+                handleDeepLink(intent, navController!!)
+            }
+
+            AppNavGraph(navController = navController!!)
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        navController?.let {
+            handleDeepLink(intent, it)
+        }
+    }
+
+    private fun handleDeepLink(intent: Intent, navController: NavHostController) {
+        intent.data?.let { uri ->
+            when {
+                uri.scheme == "mysuperapp" && uri.host == "anime" -> {
+                    val animeId = uri.pathSegments.getOrNull(1)?.toIntOrNull() ?: return@let
+                    navController.navigate(Destinations.animeDetail(animeId)) {
+                        popUpTo(Destinations.MAIN_ROUTE) { inclusive = false }
+                    }
+                }
+                uri.scheme == "https" && uri.host == "feip.co" -> {
+                    val animeId = uri.pathSegments.getOrNull(1)?.toIntOrNull() ?: return@let
+                    navController.navigate(Destinations.animeDetail(animeId)) {
+                        popUpTo(Destinations.MAIN_ROUTE) { inclusive = false }
+                    }
+                }
+            }
         }
     }
 }

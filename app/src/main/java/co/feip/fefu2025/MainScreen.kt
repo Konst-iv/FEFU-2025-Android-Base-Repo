@@ -1,81 +1,95 @@
 package co.feip.fefu2025
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-
-import co.feip.fefu2025.AnimeCard
-
-data class Anime(
-    val id: Int,
-    val title: String,
-    val image: Painter,
-    val genres: List<Pair<String, Color>>,
-    val rating: String
-)
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import co.feip.fefu2025.data.repository.MockAnimeRepository
+import co.feip.fefu2025.domain.usecase.GetAnimeListUseCase
+import co.feip.fefu2025.presentation.main.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(animeList: List<Anime>) {
-    Column {
-        TopAppBar(
-            title = { Text("Anime Search") },
-            actions = {
-                IconButton(onClick = { /* TODO: Реализовать функциональность поиска */ }) {
-                    Icon(painter = painterResource(id = R.drawable.ic_search), contentDescription = "Search")
-                }
-            }
+fun MainScreen(
+    viewModel: MainViewModel = viewModel(),
+    onAnimeClick: (Int) -> Unit
+) {
+    var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
+    val animeList = viewModel.animeList
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .padding(16.dp)
+    ) {
+        TextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            placeholder = {
+                Text(
+                    text = "Поиск",
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
+            },
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = null,
+                    tint = Color.Gray
+                )
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp)
+                .shadow(4.dp, shape = RoundedCornerShape(24.dp)),
+            shape = RoundedCornerShape(24.dp),
+            colors = TextFieldDefaults.textFieldColors(
+                containerColor = Color(0xFFF0F0F0),
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent
+            ),
+            singleLine = true
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(8.dp),
+            contentPadding = PaddingValues(bottom = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.fillMaxSize()
         ) {
             items(animeList) { anime ->
                 AnimeCard(
-                    image = anime.image,
                     title = anime.title,
-                    genres = anime.genres,
                     rating = anime.rating,
-                    modifier = Modifier.padding(8.dp)
+                    genres = anime.genres,
+                    image = painterResource(id = anime.imageResId),
+                    modifier = Modifier
+                        .clickable { onAnimeClick(anime.id) }
                 )
             }
         }
     }
 }
 
-@Composable
-fun MainScreenPreview() {
-    val animeList = listOf(
-        Anime(1, "Attack on Titan", painterResource(R.drawable.cowboy_beebop), listOf("Action" to Color.Red), "9.0"),
-        Anime(2, "My Hero Academia", painterResource(R.drawable.cowboy_beebop), listOf("School" to Color.Blue), "8.5"),
-        Anime(3, "Demon Slayer", painterResource(R.drawable.cowboy_beebop), listOf("Demons" to Color.Green), "9.5"),
-        Anime(4, "One Piece", painterResource(R.drawable.cowboy_beebop), listOf("Adventure" to Color.Yellow), "8.8"),
-        Anime(5, "Naruto", painterResource(R.drawable.cowboy_beebop), listOf("Marshal Arts" to Color(0xFFFFA500)), "8.7"), // Orange
-        Anime(6, "Death Note", painterResource(R.drawable.cowboy_beebop), listOf("Mystery" to Color(0xFF800080)), "9.2") // Purple
-    )
-
-    MainScreen(animeList)
-}
-
-@Preview(showBackground = true)
-@Composable
-fun MainScreenPreviewWrapper() {
-    MaterialTheme {
-        MainScreenPreview()
-    }
-}
