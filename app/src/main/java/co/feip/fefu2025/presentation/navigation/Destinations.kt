@@ -4,6 +4,7 @@ object Destinations {
     const val MAIN_ROUTE = "main"
     const val ANIME_DETAIL_ROUTE = "anime/{id}"
     const val RECOMMENDATIONS_ROUTE = "recommendations"
+    const val SEARCH_ROUTE = "search"
 
     fun animeDetail(id: Int): String = "anime/$id"
 }

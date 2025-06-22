@@ -10,9 +10,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +37,7 @@ import co.feip.fefu2025.AnimeCard
 import co.feip.fefu2025.data.repository.MockAnimeRepository
 import co.feip.fefu2025.domain.model.Anime
 import co.feip.fefu2025.domain.usecase.GetAnimeDetailUseCase
+import co.feip.fefu2025.presentation.detail.AnimeDetailState
 import co.feip.fefu2025.ui.theme.getGenreColor
 
 
@@ -42,7 +46,8 @@ fun AnimeScreenContent(
     anime: Anime,
     onAnimeClick: (Int) -> Unit,
     onRecommendationsClick: () -> Unit
-) {    val scrollState = rememberScrollState()
+) {
+    val scrollState = rememberScrollState()
 
     Column(
         modifier = Modifier
@@ -173,7 +178,7 @@ fun AnimeScreenContent(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            anime.recommendations?.let {
+            anime.recommendations?.let { recommendations ->
                 Text(
                     text = "Рекомендации:",
                     fontSize = 16.sp,
@@ -187,9 +192,9 @@ fun AnimeScreenContent(
 
                 LazyRow(
                     contentPadding = PaddingValues(start = 4.dp, end = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(it) { rec ->
+                    items(recommendations) { rec ->
                         AnimeCard(
                             title = rec.title,
                             rating = rec.rating,
@@ -356,20 +361,33 @@ fun AnimeScreen(
     onRecommendationsClick: () -> Unit
 ) {
     val viewModel: AnimeDetailViewModel = viewModel(factory = viewModelFactory)
-    val anime by viewModel.anime
+    val state by viewModel.state.collectAsState()
 
-    if (anime != null) {
-        AnimeScreenContent(
-            anime = anime!!,
-            onAnimeClick = onAnimeClick,
-            onRecommendationsClick = onRecommendationsClick
-        )
-    } else {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Text("Загрузка...")
+    when (state) {
+        is AnimeDetailState.Loading -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        }
+        is AnimeDetailState.Error -> {
+            val errorState = state as AnimeDetailState.Error
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(errorState.message)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = { viewModel.loadAnime() }) {  // Убрали передачу animeId
+                        Text("Повторить")
+                    }
+                }
+            }
+        }
+        is AnimeDetailState.Success -> {
+            val successState = state as AnimeDetailState.Success
+            AnimeScreenContent(
+                anime = successState.anime,
+                onAnimeClick = onAnimeClick,
+                onRecommendationsClick = onRecommendationsClick
+            )
         }
     }
 }
