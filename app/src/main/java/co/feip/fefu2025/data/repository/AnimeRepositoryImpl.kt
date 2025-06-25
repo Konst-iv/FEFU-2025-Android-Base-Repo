@@ -3,6 +3,8 @@ package co.feip.fefu2025.data.repository
 import co.feip.fefu2025.R
 import co.feip.fefu2025.domain.model.Anime
 import co.feip.fefu2025.domain.repository.AnimeRepository
+import kotlinx.coroutines.delay
+import kotlin.random.Random
 
 class MockAnimeRepository : AnimeRepository {
     private val animeList = listOf(
@@ -152,14 +154,28 @@ class MockAnimeRepository : AnimeRepository {
         )
     )
 
-    override fun getAnimeList(): List<Anime> = animeList
+    override suspend fun getAnimeList(): List<Anime> {
+        delay(1000) // Имитация загрузки
+        if (Random.nextFloat() < 0.1f) { // 10% chance of error
+            throw Exception("Ошибка сервера")
+        }
+        return animeList
+    }
 
-    override fun getAnimeById(id: Int): Anime? {
-        val anime = animeList.find { it.id == id }
-        return anime?.copy(
-            recommendations = anime.recommendationIds?.mapNotNull { rid ->
-                animeList.find { it.id == rid }
-            }
+    override suspend fun getAnimeById(id: Int): Anime? {
+        delay(1000)
+        if (Random.nextBoolean()) throw Exception("Ошибка загрузки аниме")
+        return animeList.find { it.id == id }?.copy(
+            recommendations = animeList.filter { it.id in (animeList.find { a -> a.id == id }?.recommendationIds ?: emptyList()) }
         )
+    }
+
+    override suspend fun searchAnime(query: String): List<Anime> {
+        delay(500)
+        if (query.isEmpty()) return emptyList()
+        return animeList.filter {
+            it.title.contains(query, true) ||
+            it.genres.any { genre -> genre.contains(query, true) }
+        }
     }
 }
