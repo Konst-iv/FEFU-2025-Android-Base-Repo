@@ -1,6 +1,5 @@
 package co.feip.fefu2025
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -26,26 +25,22 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import co.feip.fefu2025.presentation.detail.AnimeDetailViewModel
-import co.feip.fefu2025.RatingBarChart
-import co.feip.fefu2025.AnimeCard
-import co.feip.fefu2025.data.repository.MockAnimeRepository
 import co.feip.fefu2025.domain.model.Anime
-import co.feip.fefu2025.domain.usecase.GetAnimeDetailUseCase
 import co.feip.fefu2025.presentation.detail.AnimeDetailState
+import co.feip.fefu2025.presentation.detail.AnimeDetailViewModel
 import co.feip.fefu2025.ui.theme.getGenreColor
+import coil.compose.AsyncImage
 
 
 @Composable
 fun AnimeScreenContent(
     anime: Anime,
     onAnimeClick: (Int) -> Unit,
-    onRecommendationsClick: () -> Unit
+    onRecommendationsClick: (Int) -> Unit
 ) {
     val scrollState = rememberScrollState()
 
@@ -69,8 +64,8 @@ fun AnimeScreenContent(
                 )
                 .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
         ) {
-            Image(
-                painter = painterResource(id = anime.imageResId),
+            AsyncImage(
+                model = anime.imageUrl,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
@@ -179,31 +174,33 @@ fun AnimeScreenContent(
             Spacer(modifier = Modifier.height(4.dp))
 
             anime.recommendations?.let { recommendations ->
-                Text(
-                    text = "Рекомендации:",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 8.dp, bottom = 4.dp)
-                        .clickable { onRecommendationsClick() },
-                    color = Color.Black
-                )
+                if (recommendations.isNotEmpty()) {
+                    Text(
+                        text = "Рекомендации:",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 8.dp, bottom = 4.dp)
+                            .clickable { onRecommendationsClick(anime.id) }
+                    )
 
-                LazyRow(
-                    contentPadding = PaddingValues(start = 4.dp, end = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(recommendations) { rec ->
-                        AnimeCard(
-                            title = rec.title,
-                            rating = rec.rating,
-                            genres = rec.genres,
-                            image = painterResource(id = rec.imageResId),
-                            modifier = Modifier
-                                .width(200.dp)
-                                .clickable { onAnimeClick(rec.id) }
-                        )
+                    LazyRow(
+                        contentPadding = PaddingValues(start = 4.dp, end = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(recommendations) { rec ->
+                            AnimeCard(
+                                title = rec.title,
+                                rating = rec.rating,
+                                genres = rec.genres,
+                                imageUrl = rec.imageUrl,
+                                modifier = Modifier
+                                    .width(200.dp)
+                                    .clickable { onAnimeClick(rec.id) }
+                            )
+                        }
                     }
                 }
             }
@@ -358,7 +355,7 @@ fun AnimeScreen(
     animeId: Int,
     viewModelFactory: AnimeDetailViewModel.Factory,
     onAnimeClick: (Int) -> Unit,
-    onRecommendationsClick: () -> Unit
+    onRecommendationsClick: (Int) -> Unit
 ) {
     val viewModel: AnimeDetailViewModel = viewModel(factory = viewModelFactory)
     val state by viewModel.state.collectAsState()
@@ -375,7 +372,7 @@ fun AnimeScreen(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(errorState.message)
                     Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = { viewModel.loadAnime() }) {  // Убрали передачу animeId
+                    Button(onClick = { viewModel.loadAnime() }) {
                         Text("Повторить")
                     }
                 }
@@ -391,6 +388,3 @@ fun AnimeScreen(
         }
     }
 }
-
-
-

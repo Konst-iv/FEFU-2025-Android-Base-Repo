@@ -41,9 +41,8 @@ android {
 }
 
 dependencies {
-
-    implementation ("androidx.activity:activity-compose:1.8.0")
-    implementation ("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.activity:activity-compose:1.8.0")
+    implementation("androidx.core:core-ktx:1.12.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -65,4 +64,17 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // --- НОВЫЕ ЗАВИСИМОСТИ ---
+
+    // Retrofit для работы с сетью
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    // Конвертер Gson для Retrofit (преобразует JSON в объекты)
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    // Логгер для OkHttp (очень полезен для отладки, показывает запросы и ответы в Logcat)
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+
+    // Coil для загрузки изображений в Jetpack Compose
+    implementation("io.coil-kt:coil-compose:2.5.0")
 }
