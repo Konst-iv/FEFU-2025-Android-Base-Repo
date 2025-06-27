@@ -1,11 +1,12 @@
-// AnimeRepository.kt
 package co.feip.fefu2025.domain.repository
 
 import co.feip.fefu2025.domain.model.Anime
-import kotlinx.coroutines.delay
+import co.feip.fefu2025.domain.model.PaginatedResult
 
 interface AnimeRepository {
+    suspend fun getAnimeList(page: Int): PaginatedResult<Anime>
     suspend fun getAnimeById(id: Int): Anime?
-    suspend fun getAnimeList(): List<Anime>
-    suspend fun searchAnime(query: String): List<Anime> // Добавляем метод поиска
+    suspend fun searchAnime(query: String, page: Int): PaginatedResult<Anime>
+    suspend fun getAnimeRecommendations(id: Int): List<Anime>
+
 }

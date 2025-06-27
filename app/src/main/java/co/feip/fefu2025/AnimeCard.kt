@@ -4,31 +4,28 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import co.feip.fefu2025.ui.theme.getGenreColor
+import coil.compose.AsyncImage // <-- ДОБАВЛЕН ИМПОРТ
 
 @Composable
 fun AnimeCard(
     title: String,
     rating: String,
     genres: List<String>,
-    image: Painter,
+    imageUrl: String?, // ИЗМЕНЕНО: было image: Painter
     modifier: Modifier = Modifier
 ) {
     val titleFontSize = when {
@@ -60,9 +57,11 @@ fun AnimeCard(
                     .fillMaxWidth()
                     .height(150.dp)
                     .clip(RoundedCornerShape(10.dp))
+                    .background(Color.LightGray) // Фон-заглушка на время загрузки
             ) {
-                Image(
-                    painter = image,
+                // ИЗМЕНЕНО: Используем AsyncImage от Coil для загрузки из сети
+                AsyncImage(
+                    model = imageUrl,
                     contentDescription = title,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
@@ -90,7 +89,7 @@ fun AnimeCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             // Rating
-            RatingDisplay(rating = rating) // Исправлено: вызов функции RatingDisplay
+            RatingDisplay(rating = rating)
         }
     }
 }
@@ -100,7 +99,7 @@ private fun RatingDisplay(rating: String) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxWidth() // Добавлено: чтобы Row занимал всю ширину
+        modifier = Modifier.fillMaxWidth()
     ) {
         Icon(
             painter = painterResource(id = R.drawable.ic_star),
@@ -121,7 +120,7 @@ private fun RatingDisplay(rating: String) {
 @Composable
 private fun GenreTags(genres: List<String>) {
     val maxTagsPerLine = 3
-    val lines = genres.chunked(maxTagsPerLine).take(2) // Максимум 2 строки
+    val lines = genres.chunked(maxTagsPerLine).take(2)
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -161,4 +160,3 @@ private fun GenreTag(text: String) {
         )
     }
 }
-
